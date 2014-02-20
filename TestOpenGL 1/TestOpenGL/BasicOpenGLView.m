@@ -212,7 +212,7 @@ CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
     {
         if ([tString hasSuffix:@".png"])
         {
-            glTranslatef (ranNum(1000),ranNum(1000),0);
+            //glTranslatef (ranNum(1000),ranNum(1000),0);
             NSString *fileAbsPath = [NSString stringWithFormat:@"%@/%@",documents,tString];
             //Do something with the file
             NSImage *img = [[NSImage alloc] initWithContentsOfFile:fileAbsPath];
