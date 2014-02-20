@@ -9,7 +9,14 @@
 /* Begin PBXBuildFile section */
 		8E796C6118ADBF03005843E9 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E796C6018ADBF03005843E9 /* GLUT.framework */; };
 		8E796C6318ADC2B7005843E9 /* bestprice1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8E796C6218ADC2B7005843E9 /* bestprice1.jpg */; };
+		8E796C6518ADC2D8005843E9 /* Button.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E796C6418ADC2D8005843E9 /* Button.png */; };
 		8E9F5BD118ACBDB5005BD3BB /* trackball.c in Sources */ = {isa = PBXBuildFile; fileRef = 8E9F5BCF18ACBDB5005BD3BB /* trackball.c */; };
+		8E9F5BD318ACEB99005BD3BB /* logott.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8E9F5BD218ACEB99005BD3BB /* logott.jpg */; };
+		8EA28E1518B21465003EF9FA /* 123.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8EA28E1418B21465003EF9FA /* 123.jpg */; };
+		8EA28E1718B2154B003EF9FA /* 456.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8EA28E1618B2154B003EF9FA /* 456.jpg */; };
+		8EA28E1918B215E0003EF9FA /* tao.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8EA28E1818B215E0003EF9FA /* tao.jpg */; };
+		8EA99C0018B3B5240076C873 /* 1.png in Resources */ = {isa = PBXBuildFile; fileRef = 8EA99BFF18B3B5240076C873 /* 1.png */; };
+		8EA99C0218B3BD5C0076C873 /* Result.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8EA99C0118B3BD5B0076C873 /* Result.jpg */; };
 		8EA9CB7D18AC9C520025D93B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8EA9CB7C18AC9C520025D93B /* Cocoa.framework */; };
 		8EA9CB8718AC9C520025D93B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8EA9CB8518AC9C520025D93B /* InfoPlist.strings */; };
 		8EA9CB8918AC9C520025D93B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8EA9CB8818AC9C520025D93B /* main.m */; };
@@ -38,8 +45,15 @@
 /* Begin PBXFileReference section */
 		8E796C6018ADBF03005843E9 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 		8E796C6218ADC2B7005843E9 /* bestprice1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = bestprice1.jpg; path = ../../../Downloads/bestprice1.jpg; sourceTree = "<group>"; };
+		8E796C6418ADC2D8005843E9 /* Button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Button.png; path = ../../../Downloads/Button.png; sourceTree = "<group>"; };
 		8E9F5BCF18ACBDB5005BD3BB /* trackball.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = trackball.c; path = ../../../Downloads/CocoaGL/trackball.c; sourceTree = "<group>"; };
 		8E9F5BD018ACBDB5005BD3BB /* trackball.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = trackball.h; path = ../../../Downloads/CocoaGL/trackball.h; sourceTree = "<group>"; };
+		8E9F5BD218ACEB99005BD3BB /* logott.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = logott.jpg; path = ../../../Downloads/logott.jpg; sourceTree = "<group>"; };
+		8EA28E1418B21465003EF9FA /* 123.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = 123.jpg; path = ../../../Downloads/123.jpg; sourceTree = "<group>"; };
+		8EA28E1618B2154B003EF9FA /* 456.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = 456.jpg; path = ../../../Downloads/456.jpg; sourceTree = "<group>"; };
+		8EA28E1818B215E0003EF9FA /* tao.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = tao.jpg; path = ../../../Downloads/tao.jpg; sourceTree = "<group>"; };
+		8EA99BFF18B3B5240076C873 /* 1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = 1.png; path = ../../../../../Volumes/DATA/PicMovieLens/100K/1.png; sourceTree = "<group>"; };
+		8EA99C0118B3BD5B0076C873 /* Result.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = Result.jpg; path = ../../../Desktop/Result.jpg; sourceTree = "<group>"; };
 		8EA9CB7918AC9C520025D93B /* TestOpenGL.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestOpenGL.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8EA9CB7C18AC9C520025D93B /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		8EA9CB7F18AC9C520025D93B /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -90,6 +104,13 @@
 		8EA9CB7018AC9C520025D93B = {
 			isa = PBXGroup;
 			children = (
+				8EA99BFF18B3B5240076C873 /* 1.png */,
+				8E796C6418ADC2D8005843E9 /* Button.png */,
+				8EA28E1618B2154B003EF9FA /* 456.jpg */,
+				8EA99C0118B3BD5B0076C873 /* Result.jpg */,
+				8EA28E1418B21465003EF9FA /* 123.jpg */,
+				8EA28E1818B215E0003EF9FA /* tao.jpg */,
+				8E9F5BD218ACEB99005BD3BB /* logott.jpg */,
 				8EA9CB8218AC9C520025D93B /* TestOpenGL */,
 				8E796C6218ADC2B7005843E9 /* bestprice1.jpg */,
 				8E9F5BCF18ACBDB5005BD3BB /* trackball.c */,
@@ -251,10 +272,17 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8EA99C0018B3B5240076C873 /* 1.png in Resources */,
 				8EA9CB8718AC9C520025D93B /* InfoPlist.strings in Resources */,
 				8EA9CB9518AC9C520025D93B /* Images.xcassets in Resources */,
+				8E9F5BD318ACEB99005BD3BB /* logott.jpg in Resources */,
+				8EA99C0218B3BD5C0076C873 /* Result.jpg in Resources */,
+				8EA28E1918B215E0003EF9FA /* tao.jpg in Resources */,
 				8E796C6318ADC2B7005843E9 /* bestprice1.jpg in Resources */,
+				8E796C6518ADC2D8005843E9 /* Button.png in Resources */,
 				8EA9CB8D18AC9C520025D93B /* Credits.rtf in Resources */,
+				8EA28E1718B2154B003EF9FA /* 456.jpg in Resources */,
+				8EA28E1518B21465003EF9FA /* 123.jpg in Resources */,
 				8EA9CB9318AC9C520025D93B /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
