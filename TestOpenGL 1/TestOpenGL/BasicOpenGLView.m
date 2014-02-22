@@ -174,7 +174,7 @@ GLenum glReportError (void)
 
 int ranNum (int m)
 {
-    return rand()%m *-1;
+    return rand()%m;
 }
 CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
     NSSize imageSize = [image size];
@@ -204,7 +204,7 @@ CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
     return [[NSOpenGLPixelFormat alloc] initWithAttributes:attributes];
 }
 - (void)drawImage{
-    NSString *documents = [@"/Volumes/DATA/PicMovieLens/100K/0.3" stringByExpandingTildeInPath];
+    NSString *documents = [@"/Users/manleviet/Dropbox/Tai lieu cho Duc/PicMovieLens/100K/0.3" stringByExpandingTildeInPath];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSDirectoryEnumerator *direnum = [fileManager enumeratorAtPath:documents];
     NSString *tString;
@@ -265,10 +265,16 @@ CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
     glEnable(GL_BLEND);
     glEnable(GL_TEXTURE_2D);
     
-    float vbfr[] = {0,hh, 0,0, ww,0, ww,hh};
+    //float vbfr[] = {0,hh, 0,0, ww,0, ww,hh};
+    float vbfr[] = {0, hh, 0, 0, ww,0, ww,hh};
     
     float tbfr[] = { 0,-1, 0,0, -1,0, -1,-1};
     
+    float x = ranNum(1000);
+    float y = ranNum(1000);
+    
+    glPushMatrix();
+    glTranslatef( -hh/2 + x, -ww/2 + y, 0 );
     glVertexPointer(2, GL_FLOAT, 0, vbfr);
     glTexCoordPointer(2, GL_FLOAT, 0, tbfr);
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -277,6 +283,7 @@ CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glBlendEquationEXT(GL_MAX_EXT);
+    glPopMatrix();
     
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
