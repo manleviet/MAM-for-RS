@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @interface User : NSObject{
+    @public
     NSString *userID;
     NSMutableArray *arrayItemRate;
     NSString *userImageURL;

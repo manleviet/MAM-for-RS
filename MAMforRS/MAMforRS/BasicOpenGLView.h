@@ -150,6 +150,8 @@ typedef struct {
     bool start;
     ViewWindowController *viewWindowController;
     __weak NSPathControl *_path;
+    __weak NSPathControl *_pathExistingData;
+    bool bamchay;
 }
 
 + (bool) basicResHasChanged; +(void) setBasicResHasChanged:(bool)value;
@@ -164,6 +166,8 @@ typedef struct {
 
 + (NSMutableArray *) basicItems;
 + (NSMutableArray *) basicUsers;
++ (NSMutableArray *) basicItems0;
++ (NSMutableArray *) basicUsers0;
 //
 + (Item *) basicInfoSelectedItem;
 + (Item *)basicRequestSelectedItem;
@@ -229,10 +233,10 @@ typedef struct {
 
 + (double) basic_pourcentage_att_rep;//nt
 
-
-- (IBAction)test:(id)sender;
+- (IBAction)choseDataFromFile:(id)sender;
 - (IBAction)selectPath:(id)sender;
 - (IBAction)start:(id)sender;
 - (GLuint)loadTexture:(NSString*)name;
 @property (weak) IBOutlet NSPathControl *path;
+@property (weak) IBOutlet NSPathControl *pathExistingData;
 @end

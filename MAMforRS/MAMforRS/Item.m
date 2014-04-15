@@ -22,7 +22,6 @@
     negativeRequest = false;
     //position = [[PointInGlobal alloc] initWithXValue:(basicResX/4) + rand() % (basicResX/2) andYValue:(basicResY/4) + rand() % (basicResY/2)];
     //inertia = [[Vector alloc] initWithXValue:(rand() % 10) - 5 andYValue:(rand() % 10) - 5];
-    //[self registerGrille];
     //for (int idesc = 0; idesc < TAILLE_DESC; idesc++)	{
 	//	minDescriptorOfNeighborRandom[idesc] = INT_MAX;
 	//	maxDescriptorOfNeighborRandom[idesc] = 0;
@@ -32,10 +31,26 @@
 	//}
     //position = [[PointInGlobal alloc] initWithXValue:(basicResX/4) + rand() % (basicResX/2) andYValue:(basicResY/4) + rand() % (basicResY/2)];
     position = [[PointInGlobal alloc]
-                initWithXValue:rand() % [BasicOpenGLView basicResX] - rand() % [BasicOpenGLView basicResX]
-                andYValue:rand() % [BasicOpenGLView basicResY] - rand() % [BasicOpenGLView basicResY]];
+                initWithXValue:arc4random_uniform([BasicOpenGLView basicResX])
+                andYValue:arc4random_uniform([BasicOpenGLView basicResY])];
+    
+    
+    inertia = [[Vector alloc] initWithXValue:(arc4random() % 10) - 5 andYValue:(arc4random() % 10) - 5];
+    
+    imageRef = [self getCGImageRefFromImageURL];
+    ww = (int) CGImageGetWidth(imageRef);
+    hh = (int) CGImageGetHeight(imageRef);
+    
+    rect = CGRectMake(0.0, 0.0, (CGFloat)ww, (CGFloat)hh);
+    data = (GLubyte *) calloc(ww * hh, 4);
+    contextRef = CGBitmapContextCreate(data, ww, hh, 8, ww * 4,
+                                                    CGImageGetColorSpace(imageRef),
+                                                    kCGBitmapByteOrder32Host |kCGImageAlphaPremultipliedFirst);
+    sumForces = [[Vector alloc]init];
+    arrayOfRequestNeighbors = [[NSMutableArray alloc] init];
+    arrayOfNeighbors = [[NSMutableArray alloc] init];
+    [self registerGrille];
 
-    inertia = [[Vector alloc] initWithXValue:(rand() % 10) - 5 andYValue:(rand() % 10) - 5];
     return self;
 }
 - (void)toString{
@@ -58,17 +73,17 @@
 	//GL_EXT_texture_rectangle or GL_TEXTURE_RECTANGLE_ARB
     
     CGImageRef myImageRef = [self getCGImageRefFromImageURL];
-    int ww = (int) CGImageGetWidth(myImageRef);
-    int hh = (int) CGImageGetHeight(myImageRef);
-    GLubyte *data = (GLubyte *) calloc(ww * hh, 4);
+    //int ww = (int) CGImageGetWidth(myImageRef);
+    //int hh = (int) CGImageGetHeight(myImageRef);
+    //GLubyte *data = (GLubyte *) calloc(ww * hh, 4);
     
 	// Write the 32-bit RGBA texture buffer to video memory
-	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, ww, hh,
-                 0, GL_BGR, GL_UNSIGNED_BYTE, data );
+	//glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, ww, hh,
+                 //0, GL_BGR, GL_UNSIGNED_BYTE, data );
     
 	// Save a copy of the texture's dimensions for later use
-	widthTexture = ww;
-	heightTexture = hh;
+	//widthTexture = ww;
+	//heightTexture = hh;
 }
 -(CGImageRef ) getCGImageRefFromImageURL{
     NSImage *img2 = [[NSImage alloc] initWithContentsOfFile:itemImageURL];
@@ -87,10 +102,131 @@
 }
 //Local force compared to neighboring
 -(void) refreshLocalCandidates:(int) minNumberOfNeighbor{
+    [arrayOfNeighbors removeAllObjects];
+    Item * itemBuf;
+	int nbNeighbor = 0;
     
+    NSMutableArray *arrayItemsBuf = [[NSMutableArray alloc] init];
+
+    
+	int gx, gy, dx, dy, avancement, rang;
+	for (rang = 0; rang < [BasicOpenGLView basic_porte_maximum] / [BasicOpenGLView basicSizeOfGrille]; rang++)
+	{
+		gx = grilleX - rang;
+		gy = grilleY;
+        
+		for (int dir = 0; dir < 4; dir++)
+		{
+			if (dir==0)	{dx=1;dy=-1;}
+			else if (dir==1) {dx=1;dy=1;}
+			else if	(dir==2) {dx=-1;dy=1;}
+			else if (dir==3) {dx=-1;dy=-1;}
+            
+			if (rang == 0) avancement = -1;
+			else avancement = 0;
+            
+			for (; avancement < rang ; avancement++)
+			{
+				if (gx < 0 || gx > [BasicOpenGLView basicXGrille]-1 || gy < 0 || gy > [BasicOpenGLView basicYGrille]-1)
+				{
+					gx += dx;
+					gy += dy;
+					continue;
+				}
+                if([[BasicOpenGLView basicGrille] objectInSection:gx row:gy] != [NSNull null]){
+                    nbNeighbor += [(NSMutableArray *)[[BasicOpenGLView basicGrille] objectInSection:gx row:gy] count];
+                    arrayItemsBuf = (NSMutableArray *)[[BasicOpenGLView basicGrille] objectInSection:gx row:gy];
+                    
+                    for (int i = 0; i < [arrayItemsBuf count]; i++)
+                    {
+                        itemBuf = [arrayItemsBuf objectAtIndex:i];
+                        if (itemBuf == self) continue;
+                        [arrayOfNeighbors addObject:itemBuf];
+                    }
+                }
+				gx += dx;
+				gy += dy;
+			}
+            
+			if (rang==0) break;
+		}
+        
+        if ((nbNeighbor > minNumberOfNeighbor) && (rang >= [BasicOpenGLView basic_porte_minimum] / [BasicOpenGLView basicSizeOfGrille])) {break;}
+	}
+    NSLog(@"%lu",(unsigned long)[arrayOfNeighbors count]);
 }
 -(void) setForceOfLocal{
+    [self refreshLocalCandidates:[BasicOpenGLView basic_nombre_voisins_min]];
     
+    Item *itemBuf;
+    Vector *ab_sf;
+    int dist_spacial;
+    
+    for (int i=0; i< [arrayOfNeighbors count]; i++) {
+        itemBuf = [arrayOfNeighbors objectAtIndex:i];
+        ab_sf = itemBuf->sumForces;
+        
+        int dx = itemBuf->position.x - position.x;
+		int dy = itemBuf->position.y - position.y;
+		int dist_spacial = abs(dx) +  abs(dy);
+		if (dist_spacial == 0) continue;
+        
+        int pow_ds = pow(dist_spacial,2);
+		ab_sf->x += (int)(([BasicOpenGLView basic_puissance_refoulement] * dx) / pow_ds);
+		ab_sf->y += (int)(([BasicOpenGLView basic_puissance_refoulement] * dy) / pow_ds);
+        
+        int puissance_force;
+		float fact_buf;
+        
+        double pSum = 0, sumSelf = 0, sumBuf = 0, sumSelfSQ = 0, sumBufSQ = 0;
+        int n = 0;
+        double pearson=0;
+        for (int j = 0; j < [arrayUserRate count]; j++)
+        {
+            if([[arrayUserRate objectAtIndex:j] doubleValue] != 0 || [[itemBuf->arrayUserRate objectAtIndex:j] doubleValue] !=0) n++;
+            
+            pSum += [[arrayUserRate objectAtIndex:j] doubleValue] *[[itemBuf->arrayUserRate objectAtIndex:j] doubleValue];
+            
+            sumSelf += [[arrayUserRate objectAtIndex:j] doubleValue];
+            sumBuf += [[itemBuf->arrayUserRate objectAtIndex:j] doubleValue];
+            
+            sumSelfSQ += pow([[arrayUserRate objectAtIndex:j] doubleValue],2);
+            sumBufSQ += pow([[itemBuf->arrayUserRate objectAtIndex:j] doubleValue],2);
+        }
+        //NSLog(@"%@",arrayUserRate);
+        double num = (pSum - (sumSelf * sumBuf / n));
+        double den = sqrt((sumSelfSQ - pow(sumSelf,2)/n)*(sumBufSQ - pow(sumBuf,2)/n));
+        if(num==0) {pearson = 0;}
+        else {pearson =  num/den;}
+        
+        //pearson = (pearson + 1)*((1-0)/(double)(1 + 1)) + 0;
+        //[arrayPearsonValue addObject:[NSNumber numberWithDouble:pearson]];
+        
+        //dx = position.x - itemBuf->position.x;
+        //dy = position.y - itemBuf->position.y;
+        //distance = sqrt(pow(dx,2) + pow(dy,2));//max = sqrt(800^2 + 800^2) = 1131
+        //pearson = 1;
+        //if(distance == 0) continue;
+        
+        //f = c* log(d/s)
+        if(pearson == 0){
+            puissance_force = 0;
+        } else{
+            if(pearson > 0)
+                puissance_force = 1 * log(pearson/dist_spacial);//max -> min: log(1131^10) -> log(0.0001) ~8 -> -6
+            else puissance_force = 1 * log(-pearson/dist_spacial);
+        }
+        
+        if(pearson > 0){
+            ab_sf->x = (int)(- puissance_force * dx);
+            ab_sf->y = (int)(- puissance_force * dy);
+        }
+        else{
+            ab_sf->x = (int)(puissance_force * dx);
+            ab_sf->y = (int)(puissance_force * dy);
+
+        }
+    }
 }
 
 //Global force compared to candidates at random
@@ -396,7 +532,7 @@
 	if ([BasicOpenGLView basicInfoSelectedItem] == self)
 	{
 		glColor3f(255.0,255.0,255.0);
-		[vect_dir_per draw:position.x andx2:position.y];
+		[vect_dir_per draw:position.x andy1:position.y];
 	}
 }
 
@@ -406,12 +542,169 @@
 }
 
 //Force qui permet d'exprimer la requête (attraction uniquement)//chưa dịch đc
--(void) refreshCandidatesRequest:(int) numberOfCell{
+-(void) refreshCandidatesRequest:(int) takingRate{
+    [arrayOfRequestNeighbors removeAllObjects];
     
+    int count = 0;
+    NSMutableArray *arrayItem0Buf = [[NSMutableArray alloc] initWithArray:[BasicOpenGLView basicItems0]];
+    while (count < takingRate) {
+        int randNum = arc4random_uniform((int) [[BasicOpenGLView basicItems] count]);
+        if([[arrayItem0Buf objectAtIndex:randNum] intValue] == 0)
+        {
+            Item *itemBuf = [[BasicOpenGLView basicItems] objectAtIndex:randNum];
+            if(itemBuf == self) continue;
+            [arrayOfRequestNeighbors addObject:itemBuf];
+            [arrayItem0Buf setObject:[NSNumber numberWithInt:1] atIndexedSubscript:randNum];
+            count ++;
+        }
+    }
+    
+    //for (int i = 0; i < takingRate; i++) {
+    //    int indexRand = arc4random_uniform((int)[[BasicOpenGLView basicItems] count] - i);
+    //    Item *itemBuf = [[BasicOpenGLView basicItems] objectAtIndex:indexRand];
+    //    NSLog(@"id %@",itemBuf->itemID);
+        
+    //    if (itemBuf == self){i = i - 1; continue;}
+    //    [arrayOfRequestNeighbors addObject:itemBuf];
+        //[[BasicOpenGLView basicItems] removeObjectAtIndex:indexRand];
+    //    [[BasicOpenGLView basicItems] removeObject:itemBuf];
+    //    [[BasicOpenGLView basicItems] addObject:itemBuf];
+        
+    //}
+    //for (int i = 0; i < [[BasicOpenGLView basicItems] count]; i++) {
+      //  Item *itemBuf = [[BasicOpenGLView basicItems] objectAtIndex:i];
+      //  if (itemBuf == self) continue;
+        
+      //  if(arc4random_uniform(100) >= takingRate) continue;
+        
+      //  [arrayOfRequestNeighbors addObject:itemBuf];
+    //}
 }
 -(void) setForceRequest{
+    [self refreshCandidatesRequest:[BasicOpenGLView basic_poids_requete]];
+    double dx, dy, distance;
+    double force;
+    NSMutableArray *arrayPearsonValue = [[NSMutableArray alloc] init];
+    for (int i = 0; i < [arrayOfRequestNeighbors count]; i++)
+    {
+        Item *itemBuf = (Item *) [arrayOfRequestNeighbors objectAtIndex:i];
+        
+        double pSum = 0, sumSelf = 0, sumBuf = 0, sumSelfSQ = 0, sumBufSQ = 0;
+        int n = 0;
+        double pearson=0;
+        for (int j = 0; j < [arrayUserRate count]; j++)
+        {
+            if([[arrayUserRate objectAtIndex:j] doubleValue] != 0 || [[itemBuf->arrayUserRate objectAtIndex:j] doubleValue] !=0) n++;
+            
+            pSum += [[arrayUserRate objectAtIndex:j] doubleValue] *[[itemBuf->arrayUserRate objectAtIndex:j] doubleValue];
+            
+            sumSelf += [[arrayUserRate objectAtIndex:j] doubleValue];
+            sumBuf += [[itemBuf->arrayUserRate objectAtIndex:j] doubleValue];
+            
+            sumSelfSQ += pow([[arrayUserRate objectAtIndex:j] doubleValue],2);
+            sumBufSQ += pow([[itemBuf->arrayUserRate objectAtIndex:j] doubleValue],2);
+        }
+        //NSLog(@"%@",arrayUserRate);
+        double num = (pSum - (sumSelf * sumBuf / n));
+        double den = sqrt((sumSelfSQ - pow(sumSelf,2)/n)*(sumBufSQ - pow(sumBuf,2)/n));
+        pearson =  num/den;
+        [arrayPearsonValue addObject:[NSNumber numberWithDouble:pearson]];
+        
+        dx = position.x - itemBuf->position.x;
+        dy = position.y - itemBuf->position.y;
+        distance = sqrt(pow(dx,2) + pow(dy,2));
+        
+        //f = c* log(d/s)
+        force = 1 * log(distance/pearson);
+        
+    }
+    
+    //sap xep arrayPearson tang dan
     
 }
+-(void) setForceRequest2{
+    //[self refreshCandidatesRequest:[BasicOpenGLView basic_poids_requete]];
+    //if (id % 5 == it_number % 5)
+    //if([itemID intValue] % 5 == [BasicOpenGLView basic_it_number] % 5)
+    [self refreshCandidatesRequest:9];
+    double dx, dy, distance;
+    double force;
+    //NSMutableArray *arrayPearsonValue = [[NSMutableArray alloc] init];
+    for (int i = 0; i < [arrayOfRequestNeighbors count]; i++)
+    {
+        Item *itemBuf = (Item *) [arrayOfRequestNeighbors objectAtIndex:i];
+        //NSLog(@"%@, %@",itemID,itemBuf->itemID);
+
+        double pSum = 0, sumSelf = 0, sumBuf = 0, sumSelfSQ = 0, sumBufSQ = 0;
+        int n = 0;
+        double pearson=0;
+        for (int j = 0; j < [arrayUserRate count]; j++)
+        {
+            if([[arrayUserRate objectAtIndex:j] doubleValue] != 0 || [[itemBuf->arrayUserRate objectAtIndex:j] doubleValue] !=0) n++;
+            
+            pSum += [[arrayUserRate objectAtIndex:j] doubleValue] *[[itemBuf->arrayUserRate objectAtIndex:j] doubleValue];
+            
+            sumSelf += [[arrayUserRate objectAtIndex:j] doubleValue];
+            sumBuf += [[itemBuf->arrayUserRate objectAtIndex:j] doubleValue];
+            
+            sumSelfSQ += pow([[arrayUserRate objectAtIndex:j] doubleValue],2);
+            sumBufSQ += pow([[itemBuf->arrayUserRate objectAtIndex:j] doubleValue],2);
+        }
+        //NSLog(@"%@",arrayUserRate);
+        double num = (pSum - (sumSelf * sumBuf / n));
+        double den = sqrt((sumSelfSQ - pow(sumSelf,2)/n)*(sumBufSQ - pow(sumBuf,2)/n));
+        if(num==0) {pearson = 0;}
+        else {pearson =  num/den;}
+
+        //pearson = (pearson + 1)*((1-0)/(double)(1 + 1)) + 0;
+        //[arrayPearsonValue addObject:[NSNumber numberWithDouble:pearson]];
+        
+        dx = position.x - itemBuf->position.x;
+        dy = position.y - itemBuf->position.y;
+        distance = sqrt(pow(dx,2) + pow(dy,2));//max = sqrt(800^2 + 800^2) = 1131
+        //pearson = 1;
+        if(distance == 0) continue;
+        
+        //f = c* log(d/s)
+        if(pearson == 0){
+            force = 0;
+        } else{
+            if(pearson > 0)
+            force = 1 * log(pearson/distance);//max -> min: log(1131^10) -> log(0.0001) ~8 -> -6
+            else force = 1 * log(-pearson/distance);
+        }
+        
+        //NSLog(@"cID: %@, bufID: %@, dis: %f, pear: %f, force: %f",itemID,itemBuf->itemID, distance, pearson,force);
+        //NSLog(@"pos(%d,%d), bufpos(%d,%d),force: %f",position.x,position.y, itemBuf->position.x, itemBuf->position.y,force);
+        PointInGlobal *pointGoal;
+        //if (isPearsonPlus) {
+            pointGoal = [[PointInGlobal alloc] initWithXValue:position.x + (-dx * force)/(double)distance andYValue:position.y + (-dy * force)/(double)distance];
+       // }else{
+            //pointGoal = [[PointInGlobal alloc] initWithXValue:position.x - (-dx * distance)/(double)force andYValue:position.y - (-dy * force)/(double)distance];
+        //}
+        
+        double ddcx, ddcy;
+        if(pearson > 0){
+            ddcx = pointGoal.x - itemBuf->position.x;
+            ddcy = pointGoal.y - itemBuf->position.y;
+        }
+        else{
+            //ddcx = pointGoal.x - itemBuf->position.x;
+            //ddcy = pointGoal.y - itemBuf->position.y;
+            ddcx = itemBuf->position.x - pointGoal.x;
+            ddcy = itemBuf->position.y - pointGoal.y;
+        }
+        
+        sumForcesNeighborRequest = [[Vector alloc] initWithXValue:(int) (force * ddcx) andYValue:(int) (force * ddcy)];
+        
+        [sumForcesNeighborRequest devideTheVector:[arrayUserRate count]];
+        
+        [itemBuf->sumForces addThePoint:sumForcesNeighborRequest];
+        
+    }
+    
+}
+
 
 
 
@@ -420,19 +713,70 @@
 }
 
 -(void) move{
+    //NSLog(@"%@,%d,%d",itemID,inertia->x,inertia->y);
+    [inertia multiplyTheVector:[BasicOpenGLView basic_inertie_attenuation]/100.0];
+    //NSLog(@"%@,%d,%d",itemID,inertia->x,inertia->y);
+    
+    int inertiaDir = [inertia getDirectionOfFreeman];
+    
+    inertiaDir += (rand() % 3) -1;
+    inertiaDir = (inertiaDir + 8) % 8;
+    
+    //Vector *wander = [[Vector alloc] initWithDirectionOfForce:inertiaDir];
+    
+    //wander = [wander multiplyVector:[BasicOpenGLView basic_wander_force]];
+    //[inertia addThePoint:(PointInGlobal *)wander];
+    
+    //if(numberOfNeighborCom > 1)
+    //{
+    //    sumForcesCom = [sumForcesCom devideVector:numberOfNeighborCom];
+    //    [sumForces addThePoint:sumForcesCom];
+        
+    //    sumForcesCom = [[Vector alloc] init];
+    //    numberOfNeighborCom = 0;
+    //}
+    [inertia addThePoint:sumForces];
+
+    Vector *motion = inertia;
+    
+    int forceMotion = [motion getLength];
+    
+    if(forceMotion > 9)
+    {
+        int sqrtOfForceMotion = sqrt(forceMotion);
+        if(sqrtOfForceMotion > 7) sqrtOfForceMotion = 7;
+        
+        motion.x = ((sqrtOfForceMotion * inertia.x) / forceMotion);
+        motion.y = ((sqrtOfForceMotion * inertia.y) / forceMotion);
+        [position addThePoint:motion];
+    }
+    else{
+        
+        motion = [motion devideVector:10];
+        //motion = [motion multiplyVector:];
+        [position addThePoint:motion];
+    }
+    
+    //NSLog(@"%d,%d", position.x,position.y);
+    
+    preForce = sumForces;
+    pppreForceDirection = ppreForceDirection;
+    ppreForceDirection = preForceDirection;
+    preForceDirection = [sumForces getDirectionOfFreeman];
+    
+    sumForces = [[Vector alloc] init];
+    
+    [self checkBounds];
+    [self refreshGrille];
     
 }
+-(void) draw2{
+    [inertia draw:position.x andy1:position.y];
+}
 -(void) draw{
-    CGImageRef myImageRef = [self getCGImageRefFromImageURL];
-    int ww = (int) CGImageGetWidth(myImageRef);
-    int hh = (int) CGImageGetHeight(myImageRef);
-    
-    CGRect rect = CGRectMake(0.0, 0.0, (CGFloat)ww, (CGFloat)hh);
-    GLubyte *data = (GLubyte *) calloc(ww * hh, 4);
-    CGContextRef ctx = CGBitmapContextCreate(data, ww, hh, 8, ww * 4,
-                                             CGImageGetColorSpace(myImageRef),
-                                             kCGBitmapByteOrder32Host |kCGImageAlphaPremultipliedFirst);
-    CGContextDrawImage(ctx, rect, myImageRef);
+    //[sumForces draw:position.x andx2:position.y];
+
+    CGContextDrawImage(contextRef, rect, imageRef);
     
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -440,30 +784,29 @@
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ww, hh, 0,
                  GL_RGBA, GL_UNSIGNED_BYTE, data);
-    free(data);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
+    //free(data);
+    //glBindTexture(GL_TEXTURE_2D, texture);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glEnable(GL_BLEND);
     
-    glEnable(GL_BLEND);
+    //glEnable(GL_BLEND);
     glEnable(GL_TEXTURE_2D);
     
     //float vbfr[] = {0,hh, 0,0, ww,0, ww,hh};
     
     //float tbfr[] = { 0,-1, 0,0, -1,0, -1,-1};
-    position.x = rand() % ([BasicOpenGLView basicResX]) - [BasicOpenGLView basicResX]/2;
-    position.y = rand() % ([BasicOpenGLView basicResY]) - [BasicOpenGLView basicResY]/2;
+
     
-    float vbfr[] = {position.x - 0 - ww/2,
-                    position.y-0 - hh / 2,
-        position.x + ww- ww/2,
-        position.y- 0 - hh / 2,
-        position.x+ ww- ww/2,
-        position.y+hh - hh / 2,
-        position.x- 0 - ww/2,
-        position.y+hh - hh / 2};
+    float vbfr[] = {position.x - 0 - ww,
+                    position.y-0 - hh,
+        position.x + ww- ww,
+        position.y- 0 - hh,
+        position.x+ ww- ww,
+        position.y+hh - hh,
+        position.x- 0 - ww,
+        position.y+hh - hh};
     
     float tbfr[] = { 0,0, -1,0, -1,-1, 0,-1 };
     
@@ -472,11 +815,11 @@
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glBlendEquationEXT(GL_MAX_EXT);
+    //glDisableClientState(GL_VERTEX_ARRAY);
+    //glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    //glBlendEquationEXT(GL_MAX_EXT);
     
-    glDisable(GL_BLEND);
+    //glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
 }
 -(void) drawSelection{
@@ -485,16 +828,88 @@
 
 
 -(void) registerGrille{
+    
     grilleX = position.x / [BasicOpenGLView basicSizeOfGrille];
     grilleY = position.y / [BasicOpenGLView basicSizeOfGrille];
+    
+    if([[BasicOpenGLView basicGrille] objectInSection:grilleX row:grilleY] == [NSNull null]){
+        NSMutableArray *arrayItemInGrille = [[NSMutableArray alloc] init];
+        [arrayItemInGrille addObject:self];
+        [[BasicOpenGLView basicGrille] setObject:arrayItemInGrille inSection:grilleX row:grilleY];
+    }
+    else{
+        [(NSMutableArray *)[[BasicOpenGLView basicGrille] objectInSection:grilleX row:grilleY] addObject:self];
+    }
 }
 -(void) refreshGrille{
     
+    int posXGrille = position.x / [BasicOpenGLView basicSizeOfGrille];
+	int posYGrille = position.y / [BasicOpenGLView basicSizeOfGrille];
+    if(posXGrille <0 || posXGrille<0) return;
+
+	// Si on doit changer de case dans la grille
+	if (posXGrille != grilleX || posYGrille != grilleY )
+	{
+		[(NSMutableArray *)[[BasicOpenGLView basicGrille] objectInSection:grilleX row:grilleY] removeObject:self];
+        
+        if([[BasicOpenGLView basicGrille] objectInSection:posXGrille row:posYGrille] == [NSNull null]){
+            NSMutableArray *arrayItemInGrille = [[NSMutableArray alloc] init];
+            [arrayItemInGrille addObject:self];
+            [[BasicOpenGLView basicGrille] setObject:arrayItemInGrille inSection:posXGrille row:posYGrille];
+        }
+        else{
+            [(NSMutableArray *)[[BasicOpenGLView basicGrille] objectInSection:posXGrille row:posYGrille] addObject:self];
+        }
+		grilleX = posXGrille;
+		grilleY = posYGrille;
+	}
 }
 -(void) checkBounds{
+    if (position.x < 1)
+	{
+		//nb_agent_touche_bord++;
+		position.x = 1;
+	}
+	else if (position.x > [BasicOpenGLView basicResX] - 1)
+	{
+		//nb_agent_touche_bord++;
+		position.x = [BasicOpenGLView basicResX] - 1;
+	}
     
+	if (position.y < 1)
+	{
+		position.y = 1;
+		//nb_agent_touche_bord++;
+	}
+	else if (position.y > [BasicOpenGLView basicResY] - 1)
+	{
+		position.y = [BasicOpenGLView basicResY] - 1;
+		//nb_agent_touche_bord++;
+	}
 }
-
+-(void) checkBounds2{
+    if (position.x < [BasicOpenGLView basicResX] - 1)
+	{
+		//nb_agent_touche_bord++;
+		position.x = [BasicOpenGLView basicResX] - 1;
+	}
+	else if (position.x > -[BasicOpenGLView basicResX] - 1)
+	{
+		//nb_agent_touche_bord++;
+		position.x = -[BasicOpenGLView basicResX] - 1;
+	}
+    
+	if (position.y < [BasicOpenGLView basicResY] - 1)
+	{
+		position.y = [BasicOpenGLView basicResY] - 1;
+		//nb_agent_touche_bord++;
+	}
+	else if (position.y > -[BasicOpenGLView basicResY] - 1)
+	{
+		position.y = -[BasicOpenGLView basicResY] - 1;
+		//nb_agent_touche_bord++;
+	}
+}
 -(bool) isNear:(int) px andpy:(int) py{
     return 0;
 }
