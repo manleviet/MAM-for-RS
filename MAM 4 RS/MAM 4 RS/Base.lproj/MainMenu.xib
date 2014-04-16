@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5023" systemVersion="13A603" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5053" systemVersion="13C64" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5023"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5053"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -669,11 +669,57 @@
         <window title="MAM 4 RS" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="QvC-M9-y7g">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="335" y="390" width="480" height="360"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1028"/>
+            <rect key="contentRect" x="335" y="390" width="561" height="409"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
             <view key="contentView" id="EiT-Mj-1SZ">
-                <rect key="frame" x="0.0" y="0.0" width="480" height="360"/>
+                <rect key="frame" x="0.0" y="0.0" width="561" height="409"/>
                 <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <splitView fixedFrame="YES" dividerStyle="paneSplitter" vertical="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OcX-A0-iWL">
+                        <rect key="frame" x="0.0" y="20" width="561" height="389"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <subviews>
+                            <customView ambiguous="YES" misplaced="YES" id="JfJ-iU-NNN">
+                                <rect key="frame" x="0.0" y="0.0" width="394" height="389"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <subviews>
+                                    <openGLView ambiguous="YES" misplaced="YES" useAuxiliaryDepthBufferStencil="NO" allowOffline="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vea-65-kle">
+                                        <rect key="frame" x="0.0" y="0.0" width="394" height="389"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    </openGLView>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="vea-65-kle" firstAttribute="top" secondItem="JfJ-iU-NNN" secondAttribute="top" id="2m7-7z-Gl7"/>
+                                    <constraint firstAttribute="bottom" secondItem="vea-65-kle" secondAttribute="bottom" id="Ahr-Vq-2Dv"/>
+                                    <constraint firstItem="vea-65-kle" firstAttribute="leading" secondItem="JfJ-iU-NNN" secondAttribute="leading" id="I4N-Qj-c8D"/>
+                                    <constraint firstAttribute="trailing" secondItem="vea-65-kle" secondAttribute="trailing" constant="7" id="Q6q-D2-iVd"/>
+                                </constraints>
+                            </customView>
+                            <customView ambiguous="YES" misplaced="YES" id="CBM-kP-GlZ">
+                                <rect key="frame" x="404" y="0.0" width="157" height="389"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <subviews>
+                                    <button verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JkN-d6-aeH">
+                                        <rect key="frame" x="14" y="341" width="90" height="32"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="push" title="Browser" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="oci-EM-9ZQ">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                    </button>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="JkN-d6-aeH" firstAttribute="leading" secondItem="CBM-kP-GlZ" secondAttribute="leading" constant="20" id="3Gd-iq-a3E"/>
+                                    <constraint firstItem="JkN-d6-aeH" firstAttribute="top" secondItem="CBM-kP-GlZ" secondAttribute="top" constant="20" id="hRv-oB-bqz"/>
+                                </constraints>
+                            </customView>
+                        </subviews>
+                        <holdingPriorities>
+                            <real value="250"/>
+                            <real value="250"/>
+                        </holdingPriorities>
+                    </splitView>
+                </subviews>
             </view>
         </window>
     </objects>
