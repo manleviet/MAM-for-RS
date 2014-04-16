@@ -22,6 +22,9 @@ static GLuint basicTextureGlobal;
 
 static NSMutableArray *basicItems;
 static NSMutableArray *basicUsers;
+static NSMutableArray * basicItems0;
+static NSMutableArray * basicUsers0;
+
 //
 static Item *basicInfoSelectedItem;
 static Item *basicRequestSelectedItem;
@@ -39,12 +42,12 @@ static int basicXGrille;
 static int basicYGrille;
 static SectionArray *basicGrille;
 static double basicSizeOfGrille;//cỡ lưới
-static int basic_it_number;//not use
+static int basic_it_number = 0;//not use
 
 static int basicResX = 800;
 static int basicResY = 800;
 static int numberOfAgents;
-static int basic_poids_requete;//use in init_params
+static int basic_poids_requete = 12;//use in init_params
 static int basic_factorRepultion;//sức đẩy
 static int basic_nb_agent_touche_bord;
 //in init_params
@@ -66,7 +69,7 @@ static int basic_porte_minimum;//use in trackbar
 static int basic_porte_maximum;//use in trackbar
 
 static int basic_wander_force;//use in trackbar and params
-static int basic_inertie_attenuation;//use in trackbar and params
+static int basic_inertie_attenuation = 50;//use in trackbar and params
 
 static int basic_puissance_refoulement;//nt
 static int basic_puissance_refoulement_com;//nt
@@ -234,20 +237,27 @@ GLenum glReportError (void)
     //glVertex3f (-2, -2, 0);
     //glVertex3f (-2, 2, 0);
     //glEnd();
+    glColor3f (1.0, 0.0, 0.0);
+    glBegin(GL_LINES);
+    glVertex3f (100, 100, 0); /* xác định các đỉnh của đa giác */
+    glVertex3f (100, -100, 0);
+    glVertex3f (-100, -100, 0);
+    glVertex3f (-100, 100, 0);
+    glEnd();
     
-    glPushMatrix(); // lưu lại ma trận hiện hành
-    glColor3f (1.0, 0, 0); // thiết lập màu vẽ là màu đỏ
+    //glPushMatrix(); // lưu lại ma trận hiện hành
+    //glColor3f (1.0, 0, 0); // thiết lập màu vẽ là màu đỏ
     // vẽ mặt trời là một lưới cầu có tâm tại gốc tọa độ
-    glutWireSphere(1.0, 20, 16);
+    //glutWireSphere(1.0, 20, 16);
     /* di chuyển đến vị trí mới để vẽ trái đất */
-    glRotatef ((GLfloat) 10, 0.0, 1.0, 0.0); // quay một góc tương ứng với thời gian trong năm
-    glTranslatef (3.0, 0.0, 0.0); // tịnh tiến đến vị trí hiện tại của trái đất trên quỹ đạo quanh mặt trời
-    glRotatef ((GLfloat) 1, 0.0, 1.0, 0.0); // quay trái đất tương ứng với thời gian trong ngày
-    glColor3f (0, 0, 1.0); // thiết lập màu vẽ là màu blue
-    glutWireSphere(0.2, 10, 8); // vẽ trái đất
-    glPopMatrix(); // phục hồi lại ma trận hiện hành cũ: tương ứng với quay
+    //glRotatef ((GLfloat) 10, 0.0, 1.0, 0.0); // quay một góc tương ứng với thời gian trong năm
+    //glTranslatef (3.0, 0.0, 0.0); // tịnh tiến đến vị trí hiện tại của trái đất trên quỹ đạo quanh mặt trời
+    //glRotatef ((GLfloat) 1, 0.0, 1.0, 0.0); // quay trái đất tương ứng với thời gian trong ngày
+    //glColor3f (0, 0, 1.0); // thiết lập màu vẽ là màu blue
+    //glutWireSphere(0.2, 10, 8); // vẽ trái đất
+    //glPopMatrix(); // phục hồi lại ma trận hiện hành cũ: tương ứng với quay
     //lại vị trí ban đầu
-    glutSwapBuffers();
+    //glutSwapBuffers();
     
 }
 
@@ -532,12 +542,12 @@ CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
     camera.aperture = 100;
     camera.rotPoint = gOrigin;
     
-    camera.viewPos.x = 0.0;
-    camera.viewPos.y = 0.0;
-    camera.viewPos.z = -400.0;
+    camera.viewPos.x = basicResX/2;
+    camera.viewPos.y = basicResY/2;
+    camera.viewPos.z = -800.0;
     
-    camera.viewDir.x = -camera.viewPos.x;
-    camera.viewDir.y = -camera.viewPos.y;
+    camera.viewDir.x = 0;//-camera.viewPos.x;
+    camera.viewDir.y = 0;//-camera.viewPos.y;
     camera.viewDir.z = -camera.viewPos.z;
     
     camera.viewUp.x = 0;
@@ -650,6 +660,7 @@ CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
 		startTrackball (location.x, location.y, 0, 0, camera.viewWidth, camera.viewHeight);
 		gTrackingViewInfo = self;
 	}
+    bamchay = true;
 }
 
 // ---------------------------------
@@ -776,17 +787,27 @@ CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
 
 - (void)drawRect:(NSRect)nrect
 {
+    //if (bamchay)
+    //{
 	// setup viewport and prespective
 	[self resizeGL]; // forces projection matrix update (does test for size changes)
 	[self updateModelView];  // update model view matrix for object
+    
+    
     
 	// clear our drawable
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// chon 1 hoac ca 2
 		// model view and projection matricies already set
     //if(start == true)
-    glPushMatrix();
-    [self performAll]; //NSLog(@"a");
-    glPopMatrix();
+    
+    
+        glPushMatrix();
+    //drawCube(1.5f);
+            [self performAll]; //NSLog(@"a");
+    
+        glPopMatrix();
+        bamchay = false;
+    
 	//drawCube (1.5f); // draw scene
     //if (fInfo)
 		//[self drawInfo];
@@ -795,6 +816,7 @@ CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
 	//else
 		[[self openGLContext] flushBuffer];
 	//glReportError ();
+    //    }
 }
 
 // ---------------------------------
@@ -818,10 +840,10 @@ CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
 	shapeSize = 7.0f; // max radius of of objects
 	// init fonts for use with strings
 
-	NSFont * font =[NSFont fontWithName:@"Helvetica" size:12.0];
+	//NSFont * font =[NSFont fontWithName:@"Helvetica" size:12.0];
 	//stanStringAttrib = [[NSMutableDictionary dictionary] retain];
-	[stanStringAttrib setObject:font forKey:NSFontAttributeName];
-	[stanStringAttrib setObject:[NSColor whiteColor] forKey:NSForegroundColorAttributeName];
+	//[stanStringAttrib setObject:font forKey:NSFontAttributeName];
+	//[stanStringAttrib setObject:[NSColor whiteColor] forKey:NSForegroundColorAttributeName];
     
 	//[font release];
 	
@@ -881,6 +903,7 @@ CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
 	setStartTime (); // get app start time
 	//getCurrentCaps (); // get current GL capabilites for all displays
 	// set start values...
+    start = false;
 	rVel[0] = 0.3; rVel[1] = 0.1; rVel[2] = 0.2;
 	rAccel[0] = 0.003; rAccel[1] = -0.005; rAccel[2] = 0.004;
 	fInfo = 1;
@@ -889,20 +912,107 @@ CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
 	fDrawHelp = 1;
     basicSizeOfGrille = 0;
 	// start animation timer
-	timer = [NSTimer timerWithTimeInterval:(1.0f/60.0f) target:self selector:@selector(animationTimer:) userInfo:nil repeats:YES];
+	timer = [NSTimer timerWithTimeInterval:(1.0f/10.0f) target:self selector:@selector(animationTimer:) userInfo:nil repeats:YES];
 	[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
 	[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSEventTrackingRunLoopMode]; // ensure timer fires during resize
+    bamchay = false;
     
 }
 
 -(void)performAll{
-    int nb = 0;
-    if(basicItems != NULL){
-        nb = rand() % ([basicItems count]/40);
+    if([basicItems count] !=0){
+        int count = 0;
+        NSMutableArray *arrayItem0Buf = [[NSMutableArray alloc] initWithArray:basicItems0];
+        while (count < 10) {
+            int randNum = arc4random_uniform((int) [basicItems count]);
+            if([[arrayItem0Buf objectAtIndex:randNum] intValue] == 0)
+            {
+                Item *itemBuf = [basicItems objectAtIndex:randNum];
+                //[itemBuf setForceRequest2];
+                [itemBuf setForceOfLocal];
+                [itemBuf move];
+                [itemBuf draw];
+                [arrayItem0Buf setObject:[NSNumber numberWithInt:1] atIndexedSubscript:randNum];
+                count ++;
+            }
+        }
+        //for (int i = 0; i < 5; i++) {
+          //  int indexRand = arc4random_uniform((int)[basicItems count] - i);
+          //  Item *itemBuf = [basicItems objectAtIndex:indexRand];
+          //  NSLog(@"id %@",itemBuf->itemID);
+          //  for (int j = 0; j < [basicItems count]; j++) {
+          //      Item *it = [basicItems objectAtIndex:j];
+          //      NSLog(@"%@",it->itemID);
+          //  }
+
+          //  [itemBuf setForceRequest2];
+            //[(Item*)[basicItems objectAtIndex:i] draw2];
+          //  [itemBuf move];
+            //if(arc4random_uniform(100) >= 50) continue;
+          //  [itemBuf draw];
+          //  [basicItems removeObject:itemBuf];
+            //[basicItems removeObjectAtIndex:indexRand];
+          //  [basicItems addObject:itemBuf];
+        //}
+        
+        basic_it_number ++;
     }
-        for (int i=0; i<nb; i++) {
-        [(Item*)[basicItems objectAtIndex:i] draw];
+}
+-(NSMutableArray *)arrayIntWith:(int)nb from:(int)n{
+    NSMutableArray *array = [[NSMutableArray alloc] init];
+    for (int i = 0 ; i<nb; i++) {
+    cont:{
+            int a = arc4random_uniform(n);
+        
+            for (int j = 0 ; j < [array count]; j++) {
+                if (a == [[array objectAtIndex:j]intValue]) goto cont;
+            }
+            [array addObject:[NSNumber numberWithInt:a]];
+        }
     }
+    return array;
+}
+
+- (IBAction)choseDataFromFile:(id)sender {
+    [self initParams];
+    NSString *filePath = [[_pathExistingData URL] path];
+    //lay duong dan cua 2 file
+    NSString *itemFilePath = [NSString stringWithFormat:@"%@/ItemText.txt",filePath];
+    NSString *userFilePath = [NSString stringWithFormat:@"%@/UserText.txt",filePath];
+    
+    NSError *error;
+    NSString *itemFileContents = [NSString stringWithContentsOfFile:itemFilePath encoding:0 error:&error];
+    NSString *userFileContents = [NSString stringWithContentsOfFile:userFilePath encoding:0 error:&error];
+    if (error){
+        NSLog(@"Error reading file: %@", error.localizedDescription); return;}
+    
+    NSMutableArray *arrayItemFile = [[NSMutableArray alloc] initWithArray:[itemFileContents componentsSeparatedByString:@"\n"]];
+    NSMutableArray *arrayUserFile = [[NSMutableArray alloc] initWithArray:[userFileContents componentsSeparatedByString:@"\n"]];
+    //basicItems = [[NSMutableArray alloc] init];
+    //basicUsers = [[NSMutableArray alloc] init];
+    for(int i=0; i < [arrayItemFile count]; i++)
+    {
+        NSMutableArray *arrayItem = [[NSMutableArray alloc] initWithArray:[[arrayItemFile objectAtIndex:i] componentsSeparatedByString:@"|"]];
+        NSString *itemID = [arrayItem objectAtIndex:0];
+        NSString *itemImageURL = [arrayItem objectAtIndex:1];
+        [arrayItem removeObjectAtIndex:0];
+        [arrayItem removeObjectAtIndex:0];
+        Item *it = [[Item alloc]initWithItemID:itemID arrayUserRate:arrayItem itemImageURL:itemImageURL];
+        [basicItems addObject:it];
+    }
+    
+    for(int i=0; i < [arrayUserFile count]; i++)
+    {
+        NSMutableArray *arrayUser = [[NSMutableArray alloc] initWithArray:[[arrayUserFile objectAtIndex:i] componentsSeparatedByString:@"|"]];
+        NSString *userID = [arrayUser objectAtIndex:0];
+        NSString *userImageURL = [arrayUser objectAtIndex:1];
+        [arrayUser removeObjectAtIndex:0];
+        [arrayUser removeObjectAtIndex:0];
+        User *it = [[User alloc]initWithUserID:userID arrayItemRate:arrayUser userImageURL:userImageURL];
+        [basicUsers addObject:it];
+    }
+    basicItems0 = [[NSMutableArray alloc] initWithArray:[self createArray0Value:(int)[basicItems count]]];
+    basicUsers0 = [[NSMutableArray alloc] initWithArray:[self createArray0Value:(int)[basicUsers count]]];
 }
 
 - (IBAction)selectPath:(id)sender {
@@ -913,6 +1023,7 @@ CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
     //basicItems = [[NSMutableArray alloc] init];
     //Item *i = [[Item alloc] initWithItemID:@"1"  arrayUserRate:nil itemImageURL:@"/Users/macpro/Dropbox/manleviethuy/Tai lieu cho Duc/Standard Data/ML-100K/ItemImage/1.png"];
     //[basicItems addObject:i];
+    start =true;
     if(!viewWindowController)
     {
         viewWindowController = [[ViewWindowController alloc] initWithWindowNibName:@"ViewWindow"];
@@ -948,7 +1059,7 @@ CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
 	basic_nombre_voisins_min = 10; // so luong lang gieng nho nhat
     
 	basic_porte_minimum = 0; // cua nho nhat
-	basic_porte_maximum = 500; // cua lon nhat
+	basic_porte_maximum = 400; // cua lon nhat
     
 	// Fixé pour le moment.
 	basicSizeOfGrille = 10.0; // kich thuoc mot o trong luoi
@@ -986,22 +1097,22 @@ CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
     
 	basic_nb_to_reach = numberOfAgents;
     
-	basicItemsToDelete = [[NSMutableArray alloc] init];
+	//basicItemsToDelete = [[NSMutableArray alloc] init];
     
 	basic_nb_agent_changed = true;
     
 	//for (int idesc = 0; idesc < 48; idesc++) facteur_Desc[idesc] = 166.0;
 	//for (int idesc = 48; idesc < 52; idesc++) facteur_Desc[idesc] = 633.0;
-    id value = [NSNumber numberWithDouble:2.80];
-	for (int idesc = 0; idesc < 943; idesc++){
-        [[BasicOpenGLView basicrsDesc] insertObject:value atIndex:idesc];
-    }
+    //id value = [NSNumber numberWithDouble:2.80];
+	//for (int idesc = 0; idesc < 943; idesc++){
+    //    [[BasicOpenGLView basicrsDesc] insertObject:value atIndex:idesc];
+    //}
     
 	// Initialisation de la grille
 	[self initGrille];
     
 	//for (int i=0; i < nb_agents; i++) new Agent();
-    [self loadAgentsFromFile];
+    //[self loadAgentsFromFile];
 	//it_req = agents.begin() ; // lay agent dau tien
 	//(*it_req)->selected = true; // de chuyen thanh lua chon
 	//(*it_req)->forceToGoTo(ResX / 2, ResY/2 ); // di chuyen no ve tam man hinh
@@ -1064,15 +1175,16 @@ CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
     {
         NSArray *rateDetail = [[arrayRateFile objectAtIndex:i] componentsSeparatedByString:@"|"];
         NSString *itemIDBuf = [rateDetail objectAtIndex:1];
-        NSUInteger indexUserID = [arrayUserID indexOfObject:[rateDetail objectAtIndex:0]];
         NSString *userIDBuf = [rateDetail objectAtIndex:0];
-        NSUInteger indexItemID = [arrayItemID indexOfObject:[rateDetail objectAtIndex:1]];
         NSString *rate = [rateDetail objectAtIndex:2];
+        
+        NSUInteger indexUserID = [arrayUserID indexOfObject:userIDBuf];
+        NSUInteger indexItemID = [arrayItemID indexOfObject:itemIDBuf];
         
         for(int j=0; j < [basicItems count]; j++)
         {
             Item *it = (Item *)[basicItems objectAtIndex:j];
-            if([it getItemID] == itemIDBuf)
+            if([[it getItemID] isEqualToString:itemIDBuf])
             {
                 [it addRateToArrrayUserRate:&indexUserID rate:rate];
             }
@@ -1081,12 +1193,66 @@ CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
         for(int j=0; j < [basicUsers count]; j++)
         {
             User *u = (User *)[basicUsers objectAtIndex:j];
-            if([u getUserID] == userIDBuf)
+            if([[u getUserID] isEqualToString:userIDBuf])
             {
                 [u addRateToArrrayItemRate:&indexItemID rate:rate];
             }
         }
     }
+    //[self writeFile];
+    //Item *itemBuf = (Item*)[basicItems objectAtIndex:92];
+    //[itemBuf toString];
+    
+    //User *userbuf = (User*)[basicUsers objectAtIndex:0];
+    //[userbuf toString];
+}
+-(void) writeFile{
+    NSString *allItem=@"";
+    for(int j=0; j < [basicItems count]; j++)
+    {
+        Item *itemBuf = (Item*)[basicItems objectAtIndex:j];
+        NSString *rate = @"";
+        int dem = 0;
+        for (int i = 0; i<[itemBuf->arrayUserRate count]; i++) {
+            if(dem == 0){
+                dem = 1;
+                rate = [NSString stringWithFormat:@"%@",[itemBuf->arrayUserRate objectAtIndex:i]];
+            }else{
+                rate = [NSString stringWithFormat:@"%@|%@",rate,[itemBuf->arrayUserRate objectAtIndex:i]];
+            }
+        }
+        NSString *item = [NSString  stringWithFormat:@"%@|%@|%@",itemBuf->itemID,itemBuf->itemImageURL,rate];
+        allItem = [NSString stringWithFormat:@"%@\n%@",allItem,item];
+    }
+    NSString *fileName = [NSString stringWithFormat:@"/Users/macpro/Dropbox/manleviethuy/Tai lieu cho Duc/Standard Data/ML-100K/ItemText.txt"];
+    [allItem writeToFile:fileName
+              atomically:NO
+                encoding:NSStringEncodingConversionAllowLossy
+                   error:nil];
+    
+    NSString *allUser=@"";
+    for(int j=0; j < [basicUsers count]; j++)
+    {
+        User *userBuf = (User*)[basicUsers objectAtIndex:j];
+        NSString *rate = @"";
+        int dem = 0;
+        for (int i = 0; i<[userBuf->arrayItemRate count]; i++) {
+            if(dem == 0){
+                dem = 1;
+                rate = [NSString stringWithFormat:@"%@",[userBuf->arrayItemRate objectAtIndex:i]];
+            }else{
+                rate = [NSString stringWithFormat:@"%@|%@",rate,[userBuf->arrayItemRate objectAtIndex:i]];
+            }
+        }
+        NSString *user = [NSString  stringWithFormat:@"%@|%@|%@",userBuf->userID,userBuf->userImageURL,rate];
+        allUser = [NSString stringWithFormat:@"%@\n%@",allUser,user];
+    }
+    NSString *fileName2 = [NSString stringWithFormat:@"/Users/macpro/Dropbox/manleviethuy/Tai lieu cho Duc/Standard Data/ML-100K/UserText.txt"];
+    [allUser writeToFile:fileName2
+              atomically:NO
+                encoding:NSStringEncodingConversionAllowLossy
+                   error:nil];
+    
 }
 -(void) loadAgentsTexture{
     for (int i=0; i< [basicItems count]; i++) {
@@ -1150,6 +1316,13 @@ CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
 + (NSMutableArray *) basicUsers{
     return basicUsers;
 }
++ (NSMutableArray *) basicItems0{
+    return basicItems0;
+}
++ (NSMutableArray *) basicUsers0{
+    return basicUsers0;
+}
+
 //
 + (Item *) basicInfoSelectedItem{
     return basicInfoSelectedItem;

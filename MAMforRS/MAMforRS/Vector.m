@@ -36,13 +36,13 @@
     x*=i ; y*=i;
 }
 -(void)devideTheVector:(float)i{
-    x/=i ; y/=i;
+    x = round(x/(float)i) ; y = round(y/(float)i);
 }
 -(Vector *)multiplyVector:(int)i{
     return [[Vector alloc] initWithXValue:x*i andYValue:y*i];
 }
 -(Vector *)devideVector:(int)i{
-    return [[Vector alloc] initWithXValue:x/i andYValue:y/i];
+    return [[Vector alloc] initWithXValue:round(x/(double)i) andYValue:round(y/(double)i)];
 }
 -(int) getLength{
     return abs(x) + abs(y);
@@ -95,11 +95,20 @@
 -(bool) isLessOrEqual:(Vector *)anotherVector{
     return (abs(x)+abs(y)) <= (abs(anotherVector.x)+abs(anotherVector.y));
 }
--(void) draw:(const int) x1 y1:(const int) y1{
-    glBegin(GL_LINE);
-    glVertex2i(x1, y1);
-    glVertex2i(x1 + x, y1 + y);
+-(void) draw:(int) x1 andy1:(int) y1{
+    glColor3f (0.0, 0.9, 0.0);
+    glBegin(GL_LINES);
+    glVertex3i(x1, y1, 0);
+    glVertex3i(x1 + x, y1 + y, 0);
     glEnd();
+    
+    //glColor3f (0.0, 0.9, 0.0); /* thiết lập màu vẽ: màu trắng */
+    //glBegin(GL_LINE_LOOP); /* bắt đầu vẽ đa giác */
+    //glVertex3f (2, 2, 0); /* xác định các đỉnh của đa giác */
+    //glVertex3f (2, -2, 0);
+    //glVertex3f (-2, -2, 0);
+    //glVertex3f (-2, 2, 0);
+    //glEnd();
 }
 
 

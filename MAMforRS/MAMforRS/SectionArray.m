@@ -27,9 +27,12 @@
     return [[self alloc] initWithSections:s rows:r];
 }
 - objectInSection:(NSUInteger)s row:(NSUInteger)r {
-    return [[sections objectAtIndex:s] objectAtIndex:r];
+    return [(NSMutableArray *)[sections objectAtIndex:s] objectAtIndex:r];
 }
 - (void)setObject:o inSection:(NSUInteger)s row:(NSUInteger)r {
-    [[sections objectAtIndex:s] replaceObjectAtIndex:r withObject:0];
+    [(NSMutableArray *)[sections objectAtIndex:s] replaceObjectAtIndex:r withObject:o];
+}
+- (void)removeObject:o inSection:(NSUInteger)s row:(NSUInteger)r {
+    [(NSMutableArray *)[sections objectAtIndex:s] removeObjectAtIndex:r];
 }
 @end

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13A603" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13C64" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment defaultVersion="1080" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
@@ -649,14 +649,14 @@
         </menu>
         <window title="MAMforRS" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="371">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
-            <rect key="contentRect" x="335" y="390" width="401" height="161"/>
+            <rect key="contentRect" x="335" y="390" width="1202" height="800"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
             <view key="contentView" id="372">
-                <rect key="frame" x="0.0" y="0.0" width="401" height="161"/>
+                <rect key="frame" x="0.0" y="0.0" width="1202" height="800"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <button verticalHuggingPriority="750" id="Zlk-SW-cOh">
-                        <rect key="frame" x="161" y="21" width="82" height="32"/>
+                        <rect key="frame" x="964" y="660" width="82" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Start" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="qeH-Jv-rAf">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -667,7 +667,7 @@
                         </connections>
                     </button>
                     <pathControl verticalHuggingPriority="750" allowsExpansionToolTips="YES" id="gMb-dl-fbc">
-                        <rect key="frame" x="212" y="120" width="170" height="22"/>
+                        <rect key="frame" x="1015" y="759" width="170" height="22"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <pathCell key="cell" controlSize="small" selectable="YES" editable="YES" alignment="left" pathStyle="popUp" id="fYa-AG-diu">
                             <font key="font" metaFont="system"/>
@@ -678,7 +678,7 @@
                         </connections>
                     </pathControl>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="j9W-s1-rQe">
-                        <rect key="frame" x="45" y="122" width="53" height="17"/>
+                        <rect key="frame" x="848" y="761" width="53" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Source" id="y9a-uv-RuF">
                             <font key="font" metaFont="system"/>
@@ -687,7 +687,7 @@
                         </textFieldCell>
                     </textField>
                     <matrix verticalHuggingPriority="750" autorecalculatesCellSize="YES" id="MLg-t2-3K2">
-                        <rect key="frame" x="267" y="61" width="112" height="38"/>
+                        <rect key="frame" x="832" y="667" width="112" height="38"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         <size key="cellSize" width="91" height="18"/>
@@ -712,17 +712,30 @@
                             <action selector="selectMatrix:" target="J2q-OT-mTZ" id="NoL-Iw-DVd"/>
                         </connections>
                     </matrix>
-                    <button verticalHuggingPriority="750" id="Uiv-JD-XCm">
-                        <rect key="frame" x="76" y="54" width="82" height="32"/>
+                    <pathControl verticalHuggingPriority="750" allowsExpansionToolTips="YES" id="xTT-nA-9SD">
+                        <rect key="frame" x="1017" y="730" width="170" height="22"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="push" title="Button" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="NKM-eE-iD7">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <pathCell key="cell" controlSize="small" selectable="YES" editable="YES" alignment="left" pathStyle="popUp" id="opv-Ki-1NM">
                             <font key="font" metaFont="system"/>
-                        </buttonCell>
+                            <url key="url" string="file:///Users/macpro/Dropbox/manleviethuy/Tai%20lieu%20cho%20Duc/Standard%20Data/ML-100K%20copy/"/>
+                        </pathCell>
                         <connections>
-                            <action selector="test:" target="MHR-Fg-4US" id="oux-ak-YCe"/>
+                            <action selector="choseDataFromFile:" target="MHR-Fg-4US" id="5Xh-4U-zvd"/>
                         </connections>
-                    </button>
+                    </pathControl>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="XjN-Sq-IL9">
+                        <rect key="frame" x="848" y="734" width="98" height="17"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Existing Data" id="GIw-V7-FXx">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <customView id="xMm-M5-yMm" customClass="BasicOpenGLView">
+                        <rect key="frame" x="0.0" y="0.0" width="800" height="800"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    </customView>
                 </subviews>
             </view>
         </window>
@@ -741,6 +754,7 @@
         <customObject id="MHR-Fg-4US" customClass="BasicOpenGLView">
             <connections>
                 <outlet property="path" destination="gMb-dl-fbc" id="dTw-b1-46k"/>
+                <outlet property="pathExistingData" destination="xTT-nA-9SD" id="X1e-uA-i9D"/>
             </connections>
         </customObject>
     </objects>

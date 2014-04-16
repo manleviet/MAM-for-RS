@@ -14,9 +14,15 @@
 #import "PointInGlobal.h"
 #import "Vector.h"
 @interface Item : NSObject{
+    @public
     NSString *itemID;
     NSMutableArray *arrayUserRate;
     NSString *itemImageURL;
+    
+    CGImageRef imageRef;
+    CGRect rect;
+    GLubyte *data;
+    CGContextRef contextRef;
     
     //Position
     Vector *inertia;//inaction
@@ -42,8 +48,8 @@
     Item *currentRequest;
     
     GLuint texture;
-    int widthTexture;
-    int heightTexture;
+    int ww;
+    int hh;
     
     //
     PointInGlobal *position;
@@ -123,8 +129,9 @@
 -(void) setForceStructure;
 
 //Force qui permet d'exprimer la requête (attraction uniquement)//chưa dịch đc
--(void) refreshCandidatesRequest:(int) numberOfCell;
+-(void) refreshCandidatesRequest:(int) takingRate;
 -(void) setForceRequest;
+-(void) setForceRequest2;
 
 
 
@@ -132,6 +139,7 @@
 
 -(void) move;
 -(void) draw;
+-(void) draw2;
 -(void) drawSelection;
 
 

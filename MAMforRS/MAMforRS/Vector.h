@@ -14,6 +14,7 @@
 @interface Vector : PointInGlobal{
     
 }
+- (id) initWithDirectionOfForce:(int) directionOfForce;
 -(void) multiplyTheVector:(float)i;
 -(void) devideTheVector:(float)i;
 -(Vector *) multiplyVector:(int)i;
@@ -24,5 +25,5 @@
 -(bool) isLess:(Vector *)anotherVector;
 -(bool) isMoreOrEqual:(Vector *)anotherVector;
 -(bool) isLessOrEqual:(Vector *)anotherVector;
--(void) draw:(const int) x1 andx2:(const int) x2;
+-(void) draw:(int) x1 andy1:(int) y1;
 @end
