@@ -30,9 +30,12 @@
 	//	maxDescriptorOfNeighborRequest[idesc] = 0;
 	//}
     //position = [[PointInGlobal alloc] initWithXValue:(basicResX/4) + rand() % (basicResX/2) andYValue:(basicResY/4) + rand() % (basicResY/2)];
-    position = [[PointInGlobal alloc]
-                initWithXValue:arc4random_uniform([BasicOpenGLView basicResX])
-                andYValue:arc4random_uniform([BasicOpenGLView basicResY])];
+    
+    position = [[PointInGlobal alloc]initWithXValue:arc4random_uniform([BasicOpenGLView basicResX]) andYValue:arc4random_uniform([BasicOpenGLView basicResY])];
+    
+    //position = [[PointInGlobal alloc]
+                //initWithXValue:arc4random_uniform(10)
+                //andYValue:arc4random_uniform(10)];
     
     
     inertia = [[Vector alloc] initWithXValue:(arc4random() % 10) - 5 andYValue:(arc4random() % 10) - 5];
@@ -49,6 +52,9 @@
     sumForces = [[Vector alloc]init];
     arrayOfRequestNeighbors = [[NSMutableArray alloc] init];
     arrayOfNeighbors = [[NSMutableArray alloc] init];
+    dictPearson = [[NSMutableDictionary alloc] init];
+    minPearson = 1;
+    maxPearson = -1;
     [self registerGrille];
 
     return self;
@@ -105,6 +111,8 @@
     [arrayOfNeighbors removeAllObjects];
     Item * itemBuf;
 	int nbNeighbor = 0;
+    minPearson = 1;
+    maxPearson = -1;
     
     NSMutableArray *arrayItemsBuf = [[NSMutableArray alloc] init];
 
@@ -142,6 +150,46 @@
                         itemBuf = [arrayItemsBuf objectAtIndex:i];
                         if (itemBuf == self) continue;
                         [arrayOfNeighbors addObject:itemBuf];
+                        
+                        //tinh pearson
+                        double pearson=0;
+                        
+                        if([dictPearson valueForKey:itemBuf->itemID] == NULL)
+                        {
+                            NSLog(@"%@",[dictPearson valueForKey:itemBuf->itemID]);
+                            double pSum = 0, sumSelf = 0, sumBuf = 0, sumSelfSQ = 0, sumBufSQ = 0;
+                            int n = 0;
+                            for (int j = 0; j < [arrayUserRate count]; j++)
+                            {
+                                if([[arrayUserRate objectAtIndex:j] doubleValue] != 0 || [[itemBuf->arrayUserRate objectAtIndex:j] doubleValue] !=0) n++;
+                                
+                                pSum += [[arrayUserRate objectAtIndex:j] doubleValue] *[[itemBuf->arrayUserRate objectAtIndex:j] doubleValue];
+                                
+                                sumSelf += [[arrayUserRate objectAtIndex:j] doubleValue];
+                                sumBuf += [[itemBuf->arrayUserRate objectAtIndex:j] doubleValue];
+                                
+                                sumSelfSQ += pow([[arrayUserRate objectAtIndex:j] doubleValue],2);
+                                sumBufSQ += pow([[itemBuf->arrayUserRate objectAtIndex:j] doubleValue],2);
+                            }
+                            //NSLog(@"%@",arrayUserRate);
+                            double num = (pSum - (sumSelf * sumBuf / n));
+                            double den = sqrt((sumSelfSQ - pow(sumSelf,2)/n)*(sumBufSQ - pow(sumBuf,2)/n));
+                            if(num==0) {pearson = 0;}
+                            else {pearson =  num/den;}
+                            
+                            //pearson = (pearson - -1) * (1 - 0)/(double)(1 - -1) + 0;
+                            pearson = (pearson + 1) * 0.5;
+                            [dictPearson setValue:[NSNumber numberWithDouble:pearson] forKey:itemBuf->itemID];
+                        } else pearson = [[dictPearson valueForKey:itemBuf->itemID] doubleValue];
+                        
+                        //tinh min max avg
+                        if (pearson < minPearson) {
+                            minPearson = pearson;
+                        }
+                        if (pearson > maxPearson) {
+                            maxPearson =pearson;
+                        }
+                        avgPearson = (minPearson + maxPearson) / 2;
                     }
                 }
 				gx += dx;
@@ -160,7 +208,6 @@
     
     Item *itemBuf;
     Vector *ab_sf;
-    int dist_spacial;
     
     for (int i=0; i< [arrayOfNeighbors count]; i++) {
         itemBuf = [arrayOfNeighbors objectAtIndex:i];
@@ -171,59 +218,24 @@
 		int dist_spacial = abs(dx) +  abs(dy);
 		if (dist_spacial == 0) continue;
         
-        int pow_ds = pow(dist_spacial,2);
-		ab_sf->x += (int)(([BasicOpenGLView basic_puissance_refoulement] * dx) / pow_ds);
-		ab_sf->y += (int)(([BasicOpenGLView basic_puissance_refoulement] * dy) / pow_ds);
+        //int pow_ds = pow(dist_spacial,2);
+		//ab_sf->x += (int)(([BasicOpenGLView basic_puissance_refoulement] * dx) / pow_ds);
+		//ab_sf->y += (int)(([BasicOpenGLView basic_puissance_refoulement] * dy) / pow_ds);
         
-        int puissance_force;
-		float fact_buf;
-        
-        double pSum = 0, sumSelf = 0, sumBuf = 0, sumSelfSQ = 0, sumBufSQ = 0;
-        int n = 0;
-        double pearson=0;
-        for (int j = 0; j < [arrayUserRate count]; j++)
-        {
-            if([[arrayUserRate objectAtIndex:j] doubleValue] != 0 || [[itemBuf->arrayUserRate objectAtIndex:j] doubleValue] !=0) n++;
-            
-            pSum += [[arrayUserRate objectAtIndex:j] doubleValue] *[[itemBuf->arrayUserRate objectAtIndex:j] doubleValue];
-            
-            sumSelf += [[arrayUserRate objectAtIndex:j] doubleValue];
-            sumBuf += [[itemBuf->arrayUserRate objectAtIndex:j] doubleValue];
-            
-            sumSelfSQ += pow([[arrayUserRate objectAtIndex:j] doubleValue],2);
-            sumBufSQ += pow([[itemBuf->arrayUserRate objectAtIndex:j] doubleValue],2);
-        }
-        //NSLog(@"%@",arrayUserRate);
-        double num = (pSum - (sumSelf * sumBuf / n));
-        double den = sqrt((sumSelfSQ - pow(sumSelf,2)/n)*(sumBufSQ - pow(sumBuf,2)/n));
-        if(num==0) {pearson = 0;}
-        else {pearson =  num/den;}
-        
-        //pearson = (pearson + 1)*((1-0)/(double)(1 + 1)) + 0;
-        //[arrayPearsonValue addObject:[NSNumber numberWithDouble:pearson]];
-        
-        //dx = position.x - itemBuf->position.x;
-        //dy = position.y - itemBuf->position.y;
-        //distance = sqrt(pow(dx,2) + pow(dy,2));//max = sqrt(800^2 + 800^2) = 1131
-        //pearson = 1;
-        //if(distance == 0) continue;
-        
-        //f = c* log(d/s)
-        if(pearson == 0){
-            puissance_force = 0;
-        } else{
-            if(pearson > 0)
-                puissance_force = 1 * log(pearson/dist_spacial);//max -> min: log(1131^10) -> log(0.0001) ~8 -> -6
-            else puissance_force = 1 * log(-pearson/dist_spacial);
-        }
-        
-        if(pearson > 0){
-            ab_sf->x = (int)(- puissance_force * dx);
-            ab_sf->y = (int)(- puissance_force * dy);
-        }
-        else{
-            ab_sf->x = (int)(puissance_force * dx);
-            ab_sf->y = (int)(puissance_force * dy);
+        double force;
+        double pearson = [[dictPearson valueForKey:itemBuf->itemID] doubleValue];
+
+        if(pearson < avgPearson){
+            //đẩy
+            force = 100*(pearson - avgPearson)/(double)((maxPearson - avgPearson)* dist_spacial);
+            ab_sf->x += (int)(force * dx);
+            ab_sf->y += (int)(force * dy);
+
+        }else{
+            //hút
+            force = 100 - 100*(pearson - minPearson)/(double)(avgPearson * dist_spacial);
+            ab_sf->x += (int)(- force * dx);
+            ab_sf->y += (int)(- force * dy);
 
         }
     }
@@ -544,7 +556,9 @@
 //Force qui permet d'exprimer la requête (attraction uniquement)//chưa dịch đc
 -(void) refreshCandidatesRequest:(int) takingRate{
     [arrayOfRequestNeighbors removeAllObjects];
-    
+    minPearson = 1;
+    maxPearson = -1;
+
     int count = 0;
     NSMutableArray *arrayItem0Buf = [[NSMutableArray alloc] initWithArray:[BasicOpenGLView basicItems0]];
     while (count < takingRate) {
@@ -556,6 +570,45 @@
             [arrayOfRequestNeighbors addObject:itemBuf];
             [arrayItem0Buf setObject:[NSNumber numberWithInt:1] atIndexedSubscript:randNum];
             count ++;
+            
+            
+            //tinh pearson
+            double pearson=0;
+            
+            if([dictPearson valueForKey:itemBuf->itemID] == NULL)
+            {
+                NSLog(@"%@",[dictPearson valueForKey:itemBuf->itemID]);
+                double pSum = 0, sumSelf = 0, sumBuf = 0, sumSelfSQ = 0, sumBufSQ = 0;
+                int n = 0;
+                for (int j = 0; j < [arrayUserRate count]; j++)
+                {
+                    if([[arrayUserRate objectAtIndex:j] doubleValue] != 0 || [[itemBuf->arrayUserRate objectAtIndex:j] doubleValue] !=0) n++;
+                    
+                    pSum += [[arrayUserRate objectAtIndex:j] doubleValue] *[[itemBuf->arrayUserRate objectAtIndex:j] doubleValue];
+                    
+                    sumSelf += [[arrayUserRate objectAtIndex:j] doubleValue];
+                    sumBuf += [[itemBuf->arrayUserRate objectAtIndex:j] doubleValue];
+                    
+                    sumSelfSQ += pow([[arrayUserRate objectAtIndex:j] doubleValue],2);
+                    sumBufSQ += pow([[itemBuf->arrayUserRate objectAtIndex:j] doubleValue],2);
+                }
+                //NSLog(@"%@",arrayUserRate);
+                double num = (pSum - (sumSelf * sumBuf / n));
+                double den = sqrt((sumSelfSQ - pow(sumSelf,2)/n)*(sumBufSQ - pow(sumBuf,2)/n));
+                if(num==0) {pearson = 0;}
+                else {pearson =  num/den;}
+                pearson = (pearson + 1) * 0.5;
+                [dictPearson setValue:[NSNumber numberWithDouble:pearson] forKey:itemBuf->itemID];
+            } else pearson = [[dictPearson valueForKey:itemBuf->itemID] doubleValue];
+            
+            //tinh min max avg
+            if (pearson < minPearson) {
+                minPearson = pearson;
+            }
+            if (pearson > maxPearson) {
+                maxPearson =pearson;
+            }
+            avgPearson = (minPearson + maxPearson) / 2;
         }
     }
     
@@ -626,7 +679,7 @@
     //[self refreshCandidatesRequest:[BasicOpenGLView basic_poids_requete]];
     //if (id % 5 == it_number % 5)
     //if([itemID intValue] % 5 == [BasicOpenGLView basic_it_number] % 5)
-    [self refreshCandidatesRequest:9];
+    [self refreshCandidatesRequest:5];
     double dx, dy, distance;
     double force;
     //NSMutableArray *arrayPearsonValue = [[NSMutableArray alloc] init];
@@ -635,71 +688,52 @@
         Item *itemBuf = (Item *) [arrayOfRequestNeighbors objectAtIndex:i];
         //NSLog(@"%@, %@",itemID,itemBuf->itemID);
 
-        double pSum = 0, sumSelf = 0, sumBuf = 0, sumSelfSQ = 0, sumBufSQ = 0;
-        int n = 0;
-        double pearson=0;
-        for (int j = 0; j < [arrayUserRate count]; j++)
-        {
-            if([[arrayUserRate objectAtIndex:j] doubleValue] != 0 || [[itemBuf->arrayUserRate objectAtIndex:j] doubleValue] !=0) n++;
-            
-            pSum += [[arrayUserRate objectAtIndex:j] doubleValue] *[[itemBuf->arrayUserRate objectAtIndex:j] doubleValue];
-            
-            sumSelf += [[arrayUserRate objectAtIndex:j] doubleValue];
-            sumBuf += [[itemBuf->arrayUserRate objectAtIndex:j] doubleValue];
-            
-            sumSelfSQ += pow([[arrayUserRate objectAtIndex:j] doubleValue],2);
-            sumBufSQ += pow([[itemBuf->arrayUserRate objectAtIndex:j] doubleValue],2);
-        }
-        //NSLog(@"%@",arrayUserRate);
-        double num = (pSum - (sumSelf * sumBuf / n));
-        double den = sqrt((sumSelfSQ - pow(sumSelf,2)/n)*(sumBufSQ - pow(sumBuf,2)/n));
-        if(num==0) {pearson = 0;}
-        else {pearson =  num/den;}
-
-        //pearson = (pearson + 1)*((1-0)/(double)(1 + 1)) + 0;
-        //[arrayPearsonValue addObject:[NSNumber numberWithDouble:pearson]];
+        double pearson = [[dictPearson valueForKey:itemBuf->itemID] doubleValue];
         
         dx = position.x - itemBuf->position.x;
         dy = position.y - itemBuf->position.y;
-        distance = sqrt(pow(dx,2) + pow(dy,2));//max = sqrt(800^2 + 800^2) = 1131
+        distance = abs(dx) + abs(dy);
+        
+        //distance = sqrt(pow(dx,2) + pow(dy,2));//max = sqrt(800^2 + 800^2) = 1131
         //pearson = 1;
         if(distance == 0) continue;
-        
+        if((distance >= 400) && (pearson<0)) continue;
         //f = c* log(d/s)
+        //int maxDistance = [BasicOpenGLView basicResX] + [BasicOpenGLView basicResY];
         if(pearson == 0){
             force = 0;
         } else{
             if(pearson > 0)
-            force = 1 * log(pearson/distance);//max -> min: log(1131^10) -> log(0.0001) ~8 -> -6
-            else force = 1 * log(-pearson/distance);
+            //force = 1 * log(distance/pearson);//max -> min: log(1131^10) -> log(0.0001) ~8 -> -6
+                force = 1 - pearson/distance;
+            else //force = 1 * log(distance/-pearson);
+                force = -pearson/distance;
         }
         
-        //NSLog(@"cID: %@, bufID: %@, dis: %f, pear: %f, force: %f",itemID,itemBuf->itemID, distance, pearson,force);
+        NSLog(@"cID: %@, bufID: %@, dis: %f, pear: %f, force: %f",itemID,itemBuf->itemID, distance, pearson,force);
         //NSLog(@"pos(%d,%d), bufpos(%d,%d),force: %f",position.x,position.y, itemBuf->position.x, itemBuf->position.y,force);
         PointInGlobal *pointGoal;
-        //if (isPearsonPlus) {
+        if(pearson > 0)
+        {
+            int xx = ceil(position.x + (-dx * force)/(double)distance);
+            int yy = ceil(position.y + (-dy * force)/(double)distance);
             pointGoal = [[PointInGlobal alloc] initWithXValue:position.x + (-dx * force)/(double)distance andYValue:position.y + (-dy * force)/(double)distance];
-       // }else{
-            //pointGoal = [[PointInGlobal alloc] initWithXValue:position.x - (-dx * distance)/(double)force andYValue:position.y - (-dy * force)/(double)distance];
-        //}
-        
-        double ddcx, ddcy;
-        if(pearson > 0){
-            ddcx = pointGoal.x - itemBuf->position.x;
-            ddcy = pointGoal.y - itemBuf->position.y;
         }
         else{
-            //ddcx = pointGoal.x - itemBuf->position.x;
-            //ddcy = pointGoal.y - itemBuf->position.y;
-            ddcx = itemBuf->position.x - pointGoal.x;
-            ddcy = itemBuf->position.y - pointGoal.y;
+            pointGoal = [[PointInGlobal alloc] initWithXValue:itemBuf->position.x + (-dx * force)/(double)distance andYValue:itemBuf->position.y + (-dy * force)/(double)distance];
         }
         
-        sumForcesNeighborRequest = [[Vector alloc] initWithXValue:(int) (force * ddcx) andYValue:(int) (force * ddcy)];
+        //double ddcx, ddcy;
+
+            //ddcx = pointGoal.x - itemBuf->position.x;
+            //ddcy = pointGoal.y - itemBuf->position.y;
+
         
-        [sumForcesNeighborRequest devideTheVector:[arrayUserRate count]];
+        //sumForcesNeighborRequest = [[Vector alloc] initWithXValue:(int) (force * ddcx) andYValue:(int) (force * ddcy)];
         
-        [itemBuf->sumForces addThePoint:sumForcesNeighborRequest];
+        //[sumForcesNeighborRequest devideTheVector:[arrayUserRate count]];
+        
+        [itemBuf->sumForces addThePoint:pointGoal];
         
     }
     
@@ -722,19 +756,7 @@
     inertiaDir += (rand() % 3) -1;
     inertiaDir = (inertiaDir + 8) % 8;
     
-    //Vector *wander = [[Vector alloc] initWithDirectionOfForce:inertiaDir];
-    
-    //wander = [wander multiplyVector:[BasicOpenGLView basic_wander_force]];
-    //[inertia addThePoint:(PointInGlobal *)wander];
-    
-    //if(numberOfNeighborCom > 1)
-    //{
-    //    sumForcesCom = [sumForcesCom devideVector:numberOfNeighborCom];
-    //    [sumForces addThePoint:sumForcesCom];
-        
-    //    sumForcesCom = [[Vector alloc] init];
-    //    numberOfNeighborCom = 0;
-    //}
+
     [inertia addThePoint:sumForces];
 
     Vector *motion = inertia;
@@ -752,8 +774,8 @@
     }
     else{
         
-        motion = [motion devideVector:10];
-        //motion = [motion multiplyVector:];
+        //motion = [motion devideVector:10];
+        motion = [motion multiplyVector:3];
         [position addThePoint:motion];
     }
     
