@@ -788,7 +788,7 @@ CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
 - (void)drawRect:(NSRect)nrect
 {
     //if (bamchay)
-    //{
+    {
 	// setup viewport and prespective
 	[self resizeGL]; // forces projection matrix update (does test for size changes)
 	[self updateModelView];  // update model view matrix for object
@@ -816,7 +816,7 @@ CGImageRef CGImageCreateWithNSImage2(NSImage *image) {
 	//else
 		[[self openGLContext] flushBuffer];
 	//glReportError ();
-    //    }
+        }
 }
 
 // ---------------------------------

@@ -18,6 +18,10 @@
     NSString *itemID;
     NSMutableArray *arrayUserRate;
     NSString *itemImageURL;
+    NSMutableDictionary *dictPearson;
+    double maxPearson;
+    double minPearson;
+    double avgPearson;
     
     CGImageRef imageRef;
     CGRect rect;
