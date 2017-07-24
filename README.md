@@ -1,4 +1,4 @@
 MAM-for-RS
 ==========
 
-Mô hình đa tác tử hút và đẩy cho hệ tư vấn
+An atractive and repulsive multi-agent model for Collaborative Filtering Recommender Systems
